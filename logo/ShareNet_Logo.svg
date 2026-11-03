@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Primary gradient: teal to blue -->
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D4AA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0099FF;stop-opacity:1" />
+    </linearGradient>
+    <!-- Glow filter for the mark -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Inner shadow for depth -->
+    <filter id="innerShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feOffset dx="0" dy="2"/>
+      <feGaussianBlur stdDeviation="2" result="offset-blur"/>
+      <feComposite in="SourceGraphic" in2="offset-blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle (subtle) -->
+  <circle cx="256" cy="256" r="240" fill="#050810" />
+
+  <!-- Subtle grid pattern for tech feel -->
+  <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+    <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#1E2D45" stroke-width="0.5"/>
+  </pattern>
+  <circle cx="256" cy="256" r="240" fill="url(#grid)" opacity="0.3" />
+
+  <!-- Outer glow ring -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#brandGradient)" stroke-width="2" opacity="0.3" filter="url(#glow)" />
+
+  <!-- Main mark: Two arcs forming an "S" connection -->
+  <g filter="url(#glow)">
+    <!-- Phone arc (shorter, tighter) -->
+    <path
+      d="M 180 256
+         C 180 200, 220 160, 276 160
+         C 310 160, 340 185, 340 216"
+      fill="none"
+      stroke="url(#brandGradient)"
+      stroke-width="28"
+      stroke-linecap="round"
+      stroke-linejoin="round" />
+
+    <!-- Connection dot -->
+    <circle cx="276" cy="160" r="14" fill="url(#brandGradient)" />
+
+    <!-- PC arc (longer, sweeping) -->
+    <path
+      d="M 276 160
+         C 340 185, 340 216, 340 256
+         C 340 300, 300 340, 256 340
+         C 220 340, 190 315, 180 276"
+      fill="none"
+      stroke="url(#brandGradient)"
+      stroke-width="28"
+      stroke-linecap="round"
+      stroke-linejoin="round" />
+
+    <!-- Terminal dots on the PC arc -->
+    <circle cx="340" cy="256" r="10" fill="url(#brandGradient)" />
+    <circle cx="180" cy="276" r="10" fill="url(#brandGradient)" />
+  </g>
+
+  <!-- Data flow particles (subtle animation hint) -->
+  <g opacity="0.4">
+    <circle cx="220" cy="200" r="3" fill="#00D4AA">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0s"/>
+      <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="300" cy="200" r="3" fill="#0099FF">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+      <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+    </circle>
+    <circle cx="260" cy="290" r="3" fill="#00D4AA">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+      <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+    </circle>
+  </g>
+
+  <!-- Outer boundary ring -->
+  <circle cx="256" cy="256" r="250" fill="none" stroke="#1E2D45" stroke-width="1" />
+</svg>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Neutral graphite surfaces: the phone shares the desktop's neutral base,
+         but keeps its own teal identity instead of the desktop accent. -->
+    <color name="bg">#08090B</color>
+    <color name="bg_elevated">#101216</color>
+    <color name="surface">#15181D</color>
+    <color name="border">#21262E</color>
+    <color name="border_strong">#2C333D</color>
+    <color name="text">#F3F5F9</color>
+    <color name="text_secondary">#A9B2C0</color>
+    <color name="text_muted">#6E7787</color>
+
+    <color name="brand">#14D9B4</color>
+    <color name="brand_strong">#35EFC9</color>
+    <color name="brand_soft">#0E2A26</color>
+    <color name="brand_glow">#14D9B4</color>
+
+    <color name="accent">#5B8CFF</color>
+    <color name="accent_strong">#7BA5FF</color>
+    <color name="accent_soft">#17233B</color>
+
+    <color name="success">#3DDC97</color>
+    <color name="success_soft">#10261D</color>
+
+    <color name="warning">#F2B24C</color>
+    <color name="warning_soft">#2A2110</color>
+
+    <color name="error">#FF6E6E</color>
+    <color name="error_soft">#2A1416</color>
+
+    <!-- Gradients -->
+    <color name="gradient_start">#14D9B4</color>
+    <color name="gradient_end">#5B8CFF</color>
+    <color name="hero_gradient_start">#12151B</color>
+    <color name="hero_gradient_end">#08090B</color>
+    <color name="card_gradient_start">#12151B</color>
+    <color name="card_gradient_end">#0E1116</color>
+
+    <!-- Component-specific -->
+    <color name="chip_bg">#1A1E25</color>
+    <color name="chip">#1A1E25</color>
+    <color name="log_bg">#05060A</color>
+    <color name="input_bg">#0B0D11</color>
+    <color name="input_border">#2C333D</color>
+    <color name="input_border_focus">#14D9B4</color>
+
+    <!-- Status chips -->
+    <color name="status_connected_bg">#10261D</color>
+    <color name="status_connected_text">#3DDC97</color>
+    <color name="status_connecting_bg">#2A2110</color>
+    <color name="status_connecting_text">#F2B24C</color>
+    <color name="status_error_bg">#2A1416</color>
+    <color name="status_error_text">#FF6E6E</color>
+    <color name="status_idle_bg">#1A1E25</color>
+    <color name="status_idle_text">#A9B2C0</color>
+
+    <!-- Component colors (legacy compatibility) -->
+    <color name="amber">#F2B24C</color>
+    <color name="amber_soft">#2A2110</color>
+    <color name="green">#3DDC97</color>
+    <color name="green_soft">#10261D</color>
+    <color name="red">#FF6E6E</color>
+    <color name="red_soft">#2A1416</color>
+
+    <!-- Sparkline -->
+    <color name="spark_download">#14D9B4</color>
+    <color name="spark_upload">#5B8CFF</color>
+
+    <!-- Legacy compatibility (will be removed after migration) -->
+    <color name="bg_top">#0C0E12</color>
+    <color name="surface2">#0B0D11</color>
+    <color name="stroke">#21262E</color>
+    <color name="stroke_strong">#2C333D</color>
+    <color name="text_primary">#F3F5F9</color>
+    <color name="accent2">#A78BFA</color>
+    <color name="accent_soft_legacy">#17233B</color>
+    <color name="green_legacy">#3DDC97</color>
+    <color name="green_soft_legacy">#10261D</color>
+    <color name="amber_legacy">#F2B24C</color>
+    <color name="amber_soft_legacy">#2A2110</color>
+    <color name="red_legacy">#FF6E6E</color>
+    <color name="red_soft_legacy">#2A1416</color>
+    <color name="stop_bg">#251518</color>
+    <color name="stop_stroke">#6E3A3F</color>
+    <color name="stop_text">#FFC9C9</color>
+    <color name="neutral_soft">#1FB4C1D8</color>
+</resources>

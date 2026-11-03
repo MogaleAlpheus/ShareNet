@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base theme - using MaterialComponents (Material2) theme which is stable -->
+    <style name="Theme.ShareNet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Colors -->
+        <item name="colorPrimary">@color/brand</item>
+        <item name="colorPrimaryVariant">@color/brand_strong</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSurface">@color/bg_elevated</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnPrimary">@color/text</item>
+        <item name="colorOnSecondary">@color/text</item>
+        <item name="colorOnSurface">@color/text</item>
+        <item name="colorOnBackground">@color/text</item>
+        <item name="colorOnError">@color/text</item>
+
+        <!-- Window -->
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Typography -->
+        <item name="android:fontFamily">sans-serif</item>
+
+        <!-- Ripple -->
+        <item name="colorControlHighlight">@color/brand_soft</item>
+    </style>
+
+    <!-- Typography -->
+    <style name="TextAppearance.ShareNet.DisplayLarge" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textSize">44sp</item>
+        <item name="android:lineHeight">52sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.DisplayMedium" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textSize">36sp</item>
+        <item name="android:lineHeight">44sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.DisplaySmall" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight">36sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.HeadlineLarge" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">24sp</item>
+        <item name="android:lineHeight">32sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.HeadlineMedium" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textSize">20sp</item>
+        <item name="android:lineHeight">28sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.HeadlineSmall" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight">26sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.BodyLarge" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">24sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">22sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.BodySmall" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">18sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.LabelLarge" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.LabelMedium" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.ShareNet.LabelSmall" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/text_muted</item>
+    </style>
+
+    <!-- Shapes -->
+    <style name="ShapeAppearance.ShareNet.Small" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ShapeAppearance.ShareNet.Medium" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="ShapeAppearance.ShareNet.Large" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="Widget.ShareNet.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/brand</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textSize">14.5sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="rippleColor">@color/brand_strong</item>
+    </style>
+
+    <style name="Widget.ShareNet.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/border_strong</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="rippleColor">@color/brand_soft</item>
+    </style>
+
+    <style name="Widget.ShareNet.Button.Ghost" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/brand</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="rippleColor">@color/brand_soft</item>
+    </style>
+
+    <style name="Widget.ShareNet.Button.Destructive" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/error</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textSize">14.5sp</item>
+        <item name="rippleColor">@color/error</item>
+    </style>
+
+    <!-- Transport Mode Card -->
+    <style name="Widget.ShareNet.TransportCard" parent="Widget.MaterialComponents.CompoundButton.RadioButton">
+        <item name="android:background">@drawable/bg_transport_card</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:minHeight">80dp</item>
+        <item name="buttonTint">@android:color/transparent</item>
+    </style>
+
+    <!-- Input Fields -->
+    <style name="Widget.ShareNet.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/input_bg</item>
+        <item name="boxStrokeColor">@color/input_border</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="hintTextColor">@color/text_muted</item>
+        <item name="placeholderTextColor">@color/text_muted</item>
+    </style>
+
+    <!-- Card -->
+    <style name="Widget.ShareNet.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/bg_elevated</item>
+        <item name="strokeColor">@color/border</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+    <!-- Chip -->
+    <style name="Widget.ShareNet.Chip" parent="Widget.MaterialComponents.Chip.Entry">
+        <item name="chipBackgroundColor">@color/chip_bg</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="chipCornerRadius">999dp</item>
+        <item name="chipMinHeight">32dp</item>
+    </style>
+
+    <style name="Widget.ShareNet.Chip.Brand" parent="Widget.ShareNet.Chip">
+        <item name="chipBackgroundColor">@color/brand_soft</item>
+        <item name="android:textColor">@color/brand</item>
+    </style>
+
+    <style name="Widget.ShareNet.Chip.Success" parent="Widget.ShareNet.Chip">
+        <item name="chipBackgroundColor">@color/success_soft</item>
+        <item name="android:textColor">@color/success</item>
+    </style>
+
+    <style name="Widget.ShareNet.Chip.Warning" parent="Widget.ShareNet.Chip">
+        <item name="chipBackgroundColor">@color/warning_soft</item>
+        <item name="android:textColor">@color/warning</item>
+    </style>
+
+    <style name="Widget.ShareNet.Chip.Error" parent="Widget.ShareNet.Chip">
+        <item name="chipBackgroundColor">@color/error_soft</item>
+        <item name="android:textColor">@color/error</item>
+    </style>
+
+    <!-- Progress Indicators -->
+    <style name="Widget.ShareNet.CircularProgressIndicator" parent="Widget.MaterialComponents.CircularProgressIndicator">
+        <item name="indicatorColor">@color/brand</item>
+        <item name="trackColor">@color/brand_soft</item>
+        <item name="indicatorSize">40dp</item>
+    </style>
+</resources>

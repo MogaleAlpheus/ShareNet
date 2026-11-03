@@ -1,0 +1,30 @@
+# Portable build toolchains (JDK, Gradle, Android SDK, .NET SDK).
+# Not source: see the Build section of README.md to recreate them.
+_tools/
+
+# Third-party PdaNet binaries and reverse-engineering notes. Never published.
+Referance/
+
+# Compiled output.
+bin/
+obj/
+build/
+.gradle/
+*.user
+*.suo
+.vs/
+
+# Release artifacts. Distributed as GitHub Release assets, not committed.
+dist/
+
+# Android release signing secrets. Keep local only.
+android/keystore.properties
+android/*.jks
+android/*.keystore
+
+# Editor and OS noise.
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp

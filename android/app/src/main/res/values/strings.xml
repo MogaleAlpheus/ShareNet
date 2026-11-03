@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ShareNet</string>
+    <string name="app_tagline">Phone VPN, shared with your PC</string>
+
+    <!-- Status strings -->
+    <string name="status_idle">Stopped</string>
+    <string name="status_starting">Starting</string>
+    <string name="status_sharing">Sharing</string>
+    <string name="status_error">Action needed</string>
+
+    <string name="ready_to_share">Ready to share</string>
+    <string name="hero_detail_idle">Start sharing, then connect from the ShareNet app on your PC. Every Windows app will use this connection.</string>
+    <string name="hero_detail_sharing">PC traffic is flowing through this phone. Every Windows app uses the connection automatically.</string>
+    <string name="no_proxy_note">No proxy settings. The link is never throttled or capped.</string>
+    <string name="no_connections">No connections</string>
+    <string name="connections_one">1 connection</string>
+    <plurals name="connections_many">
+        <item quantity="one">%d connection</item>
+        <item quantity="other">%d connections</item>
+    </plurals>
+
+    <string name="live_traffic">Live traffic</string>
+    <string name="uncapped">UNCAPPED</string>
+    <string name="session_zero">Session 00:00</string>
+    <string name="session">Session %1$s</string>
+    <string name="download">DOWNLOAD</string>
+    <string name="upload">UPLOAD</string>
+    <string name="waiting_for_traffic">Waiting for traffic</string>
+    <string name="zero_downloaded">0 B downloaded</string>
+    <string name="zero_uploaded">0 B uploaded</string>
+    <string name="downloaded">%1$s downloaded</string>
+    <string name="uploaded">%1$s uploaded</string>
+
+    <string name="connection">Connection</string>
+    <string name="transport">Transport</string>
+    <string name="usb_transport">USB (ADB)</string>
+    <string name="usb_tile_title">USB</string>
+    <string name="usb_tile_hint">Most reliable</string>
+    <string name="wifi_transport">Wi-Fi</string>
+    <string name="wifi_tile_hint">Same network</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+
+    <string name="wifi_address_label">WI-FI ADDRESS</string>
+    <string name="wifi_not_connected">Not connected</string>
+    <string name="wifi_address_hint">No Wi-Fi address. On Android 11 or newer ShareNet opens its own hotspot while sharing and the PC joins it automatically. Otherwise join the same Wi-Fi network as the PC.</string>
+    <string name="wifi_port_default">Port: 1080</string>
+    <string name="password_label">PASSWORD</string>
+    <string name="copy">Copy</string>
+    <string name="copied">Password copied</string>
+    <string name="copy_password_description">Copy password</string>
+
+    <string name="start_sharing">Start sharing</string>
+    <string name="stop_sharing">Stop sharing</string>
+
+    <string name="vpn_unknown">Checking VPN status…</string>
+    <string name="vpn_active">VPN active · traffic follows the phone\'s VPN</string>
+    <string name="vpn_inactive">VPN not detected · traffic uses normal internet</string>
+
+    <string name="battery_button">Background operation</string>
+    <string name="battery_value">Allow the relay to keep running with the screen off</string>
+    <string name="battery_ok">Allowed · keeps the relay running with the screen off</string>
+
+    <string name="activity">Activity</string>
+    <string name="no_activity_yet">No activity yet</string>
+    <string name="version">ShareNet 0.2.1 · USB + Wi-Fi · Uncapped transfer</string>
+</resources>

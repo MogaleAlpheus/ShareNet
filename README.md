@@ -1,0 +1,157 @@
+# ShareNet
+
+Share a phone's active VPN connection with a Windows PC as a transparent,
+full-system tunnel. It is a clean-room PdaNet-style tool: no PdaNet code,
+assets, name, or protocol is used.
+
+- **Android app** (`android/`): relays TCP and UDP (including DNS) over USB
+  (adb `localabstract`) or Wi-Fi (TCP 1080 + password).
+- **Windows app** (`windows/ShareNet`): creates a signed WinTun adapter, runs
+  tun2socks against an internal loopback SOCKS5 bridge, and installs half-default
+  routes plus an NRPT DNS rule.
+- No Windows system proxy and no per-app proxy configuration. Every application
+  uses the tunnel automatically.
+- The phone app does **not** create a `VpnService`; it uses normal sockets so the
+  phone's existing VPN applies to relayed traffic.
+
+## Deliverables
+
+- `dist/ShareNet-0.2.1-win-x64.zip` - Windows app with the APK and README.
+- `dist/ShareNet-0.2.1-win-x64.zip.sha256` - SHA-256 checksum
+  (`0ef6fb241096dfd8ee67536c3dc8c0f9b2401b70bad50f09515f0b13938e3384`).
+- `dist/ShareNet-win-x64/ShareNet.exe` — self-contained Windows executable.
+- `dist/ShareNet-win-x64/ShareNet-android.apk` — signed release APK.
+- `android/app/build/outputs/apk/release/app-release.apk` — build output.
+
+## Quick start
+
+1. Install `ShareNet-android.apk`, connect the phone's VPN, choose a transport,
+   and tap **Start sharing**. For Wi-Fi, join a network (or turn the phone's
+   hotspot on) and note the password.
+2. Run `ShareNet.exe` as administrator.
+3. USB: enable USB debugging, connect the cable, accept the prompt, select the
+   phone, and click **Connect**.
+   Wi-Fi: click **Find** — the PC locates the phone on the network by itself —
+   then enter the password and click **Connect**. The address field can still be
+   filled in by hand.
+4. Reload open apps. Closing the window keeps the tunnel in the notification
+   area; use the tray icon to disconnect or exit.
+
+See `dist/ShareNet-win-x64/README.txt` for requirements, cleanup behavior, and
+troubleshooting.
+
+## How it works
+
+```
+Windows apps
+    │  normal IP traffic
+    ▼
+WinTun "ShareNet" (198.18.0.1/15)
+    │
+tun2socks ── SOCKS5 ── 127.0.0.1:<random>
+    │
+PhoneLink (link protocol v1 over adb forward or Wi-Fi)
+    │
+Android ShareNet ── normal sockets ── phone VPN ── internet
+```
+
+- IPv4 half-default routes `0.0.0.0/1` + `128.0.0.0/1` avoid replacing the
+  physical default route, so cleanup is simple. IPv6 half-default routes
+  `::/1` + `8000::/1` are added only when the phone's VPN passes an IPv6
+  reachability probe; otherwise IPv6 is left alone so apps use IPv4 instead of
+  trying a path the phone cannot carry.
+- In Wi-Fi mode the phone link is bound to the physical adapter address and a
+  `/32` host route to the phone is added, so the link never enters the tunnel.
+- DNS is forced through the tunnel with an NRPT rule. The phone rewrites
+  port-53 traffic to its own VPN DNS servers and restores the original source
+  address, so public resolvers do not need to be reachable through the VPN.
+- The SOCKS5 hop is internal and loopback-only; Windows never sees a proxy.
+- USB normally uses `adb forward` to `localabstract:sharenet`. The phone also
+  listens on loopback TCP 30001; if a device cannot forward the abstract socket,
+  the PC retries with `adb forward tcp:X tcp:30001`. Both phone listeners
+  restart automatically after a failure.
+
+## Link protocol v1
+
+Handshake: `SNET` (4) | version (1) | auth mode (1) | [length (1) | token].
+Server replies with a status byte. The client then selects TCP (1) or UDP (2)
+mode. TCP mode carries one address + a raw byte stream. UDP mode carries
+length-prefixed `ATYP/ADDR/PORT + payload` frames.
+
+## Repository layout
+
+- `android/` — the Android app (Kotlin). No Gradle wrapper is committed; build
+  with the portable Gradle in `_tools/`.
+- `windows/ShareNet/` — the Windows app (WPF, .NET 8) plus the adb, tun2socks and
+  wintun binaries it ships with (`tools/`).
+- `tests/` — standalone test and probe projects that compile the Windows link
+  sources directly against a mock phone. No phone required.
+- `logo/` — logo source as SVG.
+- `dist/` — local release output, not committed; rebuilds write here.
+- `_tools/` — local portable toolchains, not committed.
+
+## Build
+
+Toolchains used for this build are in `_tools/` (portable, not part of the
+release and not committed): JDK 21, Gradle 8.7, Android SDK 34 / build-tools
+34.0.0, .NET 8 SDK.
+
+### Android
+
+```powershell
+$env:JAVA_HOME = "$PWD\_tools\jdk21"
+$env:ANDROID_HOME = "$PWD\_tools\android-sdk"
+_tools\gradle-8.7\bin\gradle.bat -p android assembleRelease
+```
+
+The release signing key is generated at `android/sharenet-release.jks` and its
+passwords are in `android/keystore.properties`. Keep both private.
+
+### Windows
+
+```powershell
+_tools\dotnet\dotnet.exe publish windows\ShareNet\ShareNet.csproj `
+  -c Release -r win-x64 --self-contained true -o dist\ShareNet-win-x64
+```
+
+### Tests
+
+```powershell
+# Android protocol tests
+_tools\gradle-8.7\bin\gradle.bat -p android testDebugUnitTest
+
+# Windows link/SOCKS bridge against a mock phone
+_tools\dotnet\dotnet.exe run --project tests\LinkTest\LinkTest.csproj -c Release
+```
+
+## Live traffic
+
+Both apps meter the bytes they actually relay and sample the rate twice a
+second. The phone and the PC show download and upload speed, peak rates, session
+totals, and a sparkline of the last minute. Nothing throttles the link, and the
+counters are never truncated.
+
+## Status
+
+- [x] Android app: USB + Wi-Fi listeners, token auth, TCP/UDP relay, DNS
+  forwarding, foreground service, wake lock, battery-optimization shortcut,
+  live traffic meters.
+- [x] Windows app: WPF UI, tray icon, adb wrapper, WinTun/tun2socks, SOCKS5
+  bridge, routes, NRPT DNS, cleanup, settings, single instance, live traffic
+  meters in the window and tray tooltip.
+- [x] Signed release APK and self-contained Windows build.
+- [x] Real-phone USB test (0.2.1): handshake, TCP relay, UDP/DNS, traffic
+  meters, both USB paths (abstract and loopback fallback), and fast stop/start
+  recovery.
+- [x] Full Windows end-to-end test (0.2.1, elevated, real phone and VPN): WinTun
+  adapter, half-default routes, conditional IPv6, NRPT DNS, DNS and TCP/UDP
+  relay, HTTP/HTTPS through the tunnel, adapter byte counters, and complete
+  route/NRPT cleanup.
+- [ ] Wi-Fi mode on real hardware (the protocol is covered by the mock-phone
+  tests, but the phone was not on a shared network during this build).
+- [ ] Bluetooth and reverse tethering (out of scope for v1).
+
+## Licenses
+
+Bundled binaries and their licenses are in
+`dist/ShareNet-win-x64/tools/licenses/`. ShareNet's own source is original.

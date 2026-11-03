@@ -1,0 +1,19 @@
+* text=auto
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.zip binary
+*.apk binary
+*.jks binary
+*.ttf binary
+
+*.cs text
+*.xaml text
+*.kt text
+*.kts text
+*.xml text
+*.md text
+*.csproj text
