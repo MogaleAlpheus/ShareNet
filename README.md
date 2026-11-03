@@ -151,7 +151,18 @@ counters are never truncated.
   tests, but the phone was not on a shared network during this build).
 - [ ] Bluetooth and reverse tethering (out of scope for v1).
 
-## Licenses
+## License
 
-Bundled binaries and their licenses are in
-`dist/ShareNet-win-x64/tools/licenses/`. ShareNet's own source is original.
+ShareNet's own source is released under the MIT license; see `LICENSE`. It is
+an original implementation: no PdaNet code, assets, name, or protocol is used.
+
+Bundled components keep their own terms, with the full texts in
+`windows/ShareNet/tools/licenses/` (copied into the release):
+
+- `sharenet-tun2socks.exe` — tun2socks, MIT.
+- `wintun.dll` — WireGuard LLC's prebuilt binary license, which allows
+  redistribution alongside software that uses it only through the documented
+  API. Do not modify or reverse engineer the DLL.
+- `adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll` — Android SDK Platform-Tools,
+  distributed by Google under the Android SDK terms rather than an
+  open-source license.
