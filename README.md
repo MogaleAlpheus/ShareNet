@@ -16,7 +16,12 @@ assets, name, or protocol is used.
 
 ## Deliverables
 
-- `dist/ShareNet-0.2.1-win-x64.zip` - Windows app with the APK and README.
+- `dist/ShareNet-0.2.1-win-x64-setup.exe` - Windows installer (recommended);
+  installs the app, the APK and the user README.
+- `dist/ShareNet-0.2.1-win-x64-setup.exe.sha256` - SHA-256 checksum
+  (`db61bcef00c41d2fc3bebf92e0e159d607b99d48e385a1e73d87e066910cc99d`).
+- `dist/ShareNet-0.2.1-win-x64.zip` - portable Windows app with the APK and
+  README.
 - `dist/ShareNet-0.2.1-win-x64.zip.sha256` - SHA-256 checksum
   (`0ef6fb241096dfd8ee67536c3dc8c0f9b2401b70bad50f09515f0b13938e3384`).
 - `dist/ShareNet-win-x64/ShareNet.exe` — self-contained Windows executable.
@@ -28,7 +33,8 @@ assets, name, or protocol is used.
 1. Install `ShareNet-android.apk`, connect the phone's VPN, choose a transport,
    and tap **Start sharing**. For Wi-Fi, join a network (or turn the phone's
    hotspot on) and note the password.
-2. Run `ShareNet.exe` as administrator.
+2. Install it with `ShareNet-0.2.1-win-x64-setup.exe`, or unzip the portable
+   build and run `ShareNet.exe` as administrator.
 3. USB: enable USB debugging, connect the cable, accept the prompt, select the
    phone, and click **Connect**.
    Wi-Fi: click **Find** — the PC locates the phone on the network by itself —
@@ -113,6 +119,18 @@ passwords are in `android/keystore.properties`. Keep both private.
 _tools\dotnet\dotnet.exe publish windows\ShareNet\ShareNet.csproj `
   -c Release -r win-x64 --self-contained true -o dist\ShareNet-win-x64
 ```
+
+### Windows installer
+
+Publish first, then package the published folder:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" -DAppVersion=0.2.1 `
+  windows\installer\ShareNet.iss
+```
+
+Needs Inno Setup 6 (`winget install JRSoftware.InnoSetup`). Use `-D`, not `/D`:
+ISCC treats a leading `/` as a path on Windows. The setup lands in `dist/`.
 
 ### Tests
 
