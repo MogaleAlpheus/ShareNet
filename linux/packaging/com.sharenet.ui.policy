@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <!-- The Windows app runs elevated; on Linux the equivalent is this action.
+       It lets the desktop launch the window with the rights it needs to create
+       the tunnel adapter, change routes and point systemd-resolved at it. -->
+  <action id="com.sharenet.ui">
+    <description>Share a phone's VPN with this computer</description>
+    <message>ShareNet needs administrator rights to create the tunnel adapter and change this computer's routes and DNS.</message>
+    <icon_name>sharenet</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">@EXEC@</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>

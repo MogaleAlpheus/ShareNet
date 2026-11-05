@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShareNet</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --elevated: #0f131a;
+    --panel: #12161d;
+    --surface: #171c25;
+    --border: #1d2430;
+    --border-strong: #263040;
+    --text: #e7ebf3;
+    --secondary: #aab3c4;
+    --muted: #7c8698;
+    --brand: #4c8dff;
+    --brand-soft: #16233d;
+    --accent: #38d39f;
+    --error: #ff6b6b;
+    --warn: #f2b64c;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 13px/1.45 -apple-system, "Segoe UI", Inter, Cantarell, "Noto Sans", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    height: 46px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--border);
+    background: #0d1117;
+  }
+  .logo {
+    width: 25px; height: 25px; border-radius: 7px;
+    background: radial-gradient(120% 120% at 20% 10%, #1b2a4a, #0e1626);
+    border: 1px solid #26355c;
+    display: grid; place-items: center;
+    color: var(--brand); font-weight: 700; font-size: 15px;
+  }
+  .brand { font-weight: 600; font-size: 13px; letter-spacing: .2px; }
+  .divider { width: 1px; height: 13px; background: var(--border-strong); }
+  .subtitle { color: var(--muted); font-size: 11.5px; }
+  header .spacer { flex: 1; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border-strong); background: var(--surface);
+    border-radius: 5px; padding: 3px 8px; font-size: 10.5px; font-weight: 600;
+    color: var(--secondary);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+  .dot.ok { background: var(--accent); }
+  .dot.busy { background: var(--warn); }
+  .dot.bad { background: var(--error); }
+
+  main { flex: 1; display: grid; grid-template-columns: 404px minmax(0, 1fr); min-height: 0; }
+  .left {
+    border-right: 1px solid var(--border);
+    background: var(--elevated);
+    padding: 20px 24px 22px;
+    display: flex; flex-direction: column; gap: 0;
+    min-height: 0;
+  }
+  .right { padding: 22px 26px 26px; overflow-y: auto; min-height: 0; }
+
+  .label {
+    font-size: 10px; font-weight: 700; letter-spacing: .09em;
+    color: var(--muted); text-transform: uppercase; margin: 0 0 8px;
+  }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  h1.status { font-size: 19px; font-weight: 600; margin: 14px 0 0; line-height: 1.3; }
+  .caption { color: var(--muted); font-size: 11.5px; margin: 6px 0 0; }
+  .error { color: var(--error); font-size: 11.5px; margin-top: 9px; display: none; white-space: pre-wrap; }
+  .error.show { display: block; }
+  .hr { height: 1px; background: var(--border); margin: 18px 0; }
+
+  .segment {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 9px; padding: 3px;
+  }
+  .segment button {
+    border: 0; border-radius: 6px; padding: 8px 10px; cursor: pointer;
+    background: transparent; color: var(--secondary); font: inherit; font-size: 12px; font-weight: 600;
+  }
+  .segment button.active { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border-strong) inset; }
+
+  .field { margin-top: 16px; }
+  .field:first-child { margin-top: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 8px 96px; gap: 0; align-items: end; }
+  .inline { display: grid; grid-template-columns: 1fr 8px auto; gap: 0; align-items: end; }
+  input[type=text], input[type=password], select {
+    width: 100%; height: 38px; padding: 0 10px;
+    background: var(--panel); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    font: inherit; font-size: 12.5px; outline: none;
+  }
+  input:focus, select:focus { border-color: #33507f; box-shadow: 0 0 0 3px #1a2740; }
+  input:disabled, input[readonly] { color: var(--muted); }
+  button.action {
+    height: 38px; padding: 0 13px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 600;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 8px;
+  }
+  button.action:hover:not(:disabled) { border-color: #35507c; }
+  button:disabled { opacity: .5; cursor: default; }
+  .primary {
+    width: 100%; height: 44px; border: 0; border-radius: 10px; cursor: pointer;
+    background: linear-gradient(180deg, #5a9bff, #3d7ef0); color: #06122a;
+    font: inherit; font-size: 13.5px; font-weight: 700;
+  }
+  .primary:hover:not(:disabled) { filter: brightness(1.06); }
+  .primary:disabled { filter: grayscale(.5) brightness(.8); }
+  .primary.danger { background: linear-gradient(180deg, #ff8a8a, #e35d5d); color: #2a0606; }
+  .via { text-align: center; color: var(--muted); font-size: 11px; margin-top: 9px; }
+  .via b { color: var(--secondary); font-weight: 600; }
+
+  .facts { display: grid; gap: 9px; }
+  .fact { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--secondary); }
+  .fact span:last-child { color: var(--muted); }
+  .hint { color: var(--muted); font-size: 11px; margin-top: 9px; }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--secondary); font-size: 11.5px; }
+  .scroll { flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; margin: 0 -4px; }
+  .bottom { flex: none; padding-top: 14px; }
+
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .page-head h2 { font-size: 17px; font-weight: 600; margin: 0; }
+  .badge {
+    border: 1px solid #26375a; background: var(--brand-soft); color: #8fb8ff;
+    border-radius: 6px; padding: 4px 9px; font-size: 9.5px; font-weight: 700; letter-spacing: .08em;
+  }
+  .card { border: 1px solid var(--border); background: var(--panel); border-radius: 12px; margin-top: 14px; }
+  .card-pad { padding: 16px 20px; }
+  .metric { display: flex; align-items: baseline; justify-content: space-between; }
+  .metric .name { font-size: 12px; font-weight: 600; color: var(--secondary); }
+  .metric .value { font-size: 30px; font-weight: 600; letter-spacing: -.5px; }
+  .metric .unit { font-size: 11.5px; color: var(--muted); margin-left: 6px; }
+  svg.spark { width: 100%; height: 62px; display: block; margin-top: 6px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .tile { border: 1px solid var(--border); background: var(--panel); border-radius: 10px; padding: 12px 14px; }
+  .tile .k { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; color: var(--muted); }
+  .tile .v { font-size: 16.5px; font-weight: 600; margin-top: 7px; }
+  .activity-head {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    background: transparent; border: 0; color: inherit; font: inherit; cursor: pointer;
+    padding: 14px 20px; text-align: left;
+  }
+  .activity-head .title { font-size: 13px; font-weight: 600; }
+  .activity-head .summary { color: var(--muted); font-size: 11.5px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chev { color: var(--muted); transition: transform .15s ease; }
+  .chev.open { transform: rotate(90deg); }
+  pre.log {
+    margin: 0 20px 18px; padding: 12px; max-height: 190px; overflow: auto;
+    background: #0a0d12; border: 1px solid var(--border); border-radius: 8px;
+    font: 11px/1.55 ui-monospace, "JetBrains Mono", "Cascadia Mono", monospace;
+    color: #b6c0d2; white-space: pre-wrap; word-break: break-word; display: none;
+  }
+  pre.log.open { display: block; }
+  .log .WARN { color: var(--warn); }
+  .log .ERROR { color: var(--error); }
+  .log .DEBUG { color: var(--muted); }
+  footer {
+    flex: none; height: 32px; display: flex; align-items: center; gap: 10px;
+    padding: 0 16px; border-top: 1px solid var(--border); background: #0d1117;
+    color: var(--muted); font-size: 11px;
+  }
+  footer .spacer { flex: 1; }
+  .tag {
+    border: 1px solid var(--border-strong); background: var(--surface); border-radius: 5px;
+    padding: 2px 7px; font-size: 9px; font-weight: 700; letter-spacing: .04em; color: var(--secondary);
+  }
+  .tag.bad { color: var(--warn); border-color: #4a3a1c; background: #241c0e; }
+  .linkbtn { background: none; border: 0; color: var(--muted); font: inherit; cursor: pointer; padding: 0; }
+  .linkbtn:hover { color: var(--secondary); }
+  .toast {
+    position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%);
+    background: #1b2230; border: 1px solid var(--border-strong); color: var(--text);
+    padding: 9px 14px; border-radius: 8px; font-size: 12px; opacity: 0; pointer-events: none;
+    transition: opacity .2s ease; max-width: 70vw;
+  }
+  .toast.show { opacity: 1; }
+  @media (max-width: 980px) {
+    main { grid-template-columns: 1fr; }
+    .left { border-right: 0; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">S</div>
+  <div class="brand">ShareNet</div>
+  <div class="divider"></div>
+  <div class="subtitle">Phone VPN for Linux</div>
+  <div class="spacer"></div>
+  <div class="pill"><span class="dot" id="headDot"></span><span id="headState">Stopped</span></div>
+</header>
+
+<main>
+  <section class="left">
+    <div class="scroll">
+      <div class="row">
+        <p class="label" style="margin:0">Connection</p>
+        <div class="pill"><span class="dot" id="pillDot"></span><span id="pillText">Stopped</span></div>
+      </div>
+      <h1 class="status" id="statusText">Ready to connect</h1>
+      <p class="caption" id="statusDetail">Choose USB or Wi-Fi. Every program will use the phone's connection.</p>
+      <p class="error" id="errorText"></p>
+      <div class="hr"></div>
+
+      <p class="label">Transport</p>
+      <div class="segment">
+        <button id="modeUsb" class="active" data-mode="usb">USB cable</button>
+        <button id="modeWifi" data-mode="wifi">Wi-Fi</button>
+      </div>
+
+      <div id="usbPanel">
+        <div class="field">
+          <p class="label">Phone</p>
+          <div class="inline">
+            <select id="deviceSelect"></select>
+            <span></span>
+            <button class="action" id="scanButton">Scan</button>
+          </div>
+          <p class="hint">Enable Developer options → USB debugging, connect the cable, then accept the prompt on the phone.</p>
+        </div>
+      </div>
+
+      <div id="wifiPanel" style="display:none">
+        <div class="field">
+          <div class="grid2">
+            <div>
+              <p class="label">Phone address</p>
+              <div class="inline">
+                <input type="text" id="hostInput" placeholder="192.168.43.1" autocomplete="off">
+                <span></span>
+                <button class="action" id="findButton">Find</button>
+              </div>
+            </div>
+            <span></span>
+            <div>
+              <p class="label">Port</p>
+              <input type="text" value="1080" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="grid2" style="grid-template-columns:1fr 8px 1fr">
+            <div>
+              <p class="label">Password</p>
+              <input type="password" id="passwordInput" placeholder="Shown in the phone app" autocomplete="off">
+            </div>
+            <span></span>
+            <div>
+              <p class="label">Adapter</p>
+              <select id="adapterSelect"></select>
+            </div>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="hotspotInput"> Join the phone's hotspot automatically</label>
+        <p class="hint" id="wifiHint">Press Connect to find the phone, or to join the hotspot it opens. The password is remembered after the first connection.</p>
+      </div>
+
+      <div class="hr"></div>
+      <p class="label">Tunnel</p>
+      <div class="facts">
+        <div class="fact"><span>Routing</span><span>System-wide TUN</span></div>
+        <div class="fact"><span>DNS</span><span>From the phone</span></div>
+        <div class="fact"><span>Link loss</span><span>Auto-disconnect</span></div>
+        <div class="fact"><span>Traffic caps</span><span>None</span></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <button class="primary" id="connectButton">Connect</button>
+      <div class="via">via <b id="transportText">USB cable</b></div>
+    </div>
+  </section>
+
+  <section class="right">
+    <div class="page-head">
+      <div>
+        <h2>Live traffic</h2>
+        <p class="caption" style="margin-top:4px">Real-time throughput through the phone link.</p>
+      </div>
+      <div class="badge">UNCAPPED</div>
+    </div>
+
+    <div class="card">
+      <div class="card-pad">
+        <p class="label" style="margin-bottom:12px">Throughput</p>
+        <div class="metric">
+          <span class="name">↓ Download</span>
+          <span><span class="value" id="downRate">0</span><span class="unit" id="downUnit">B/s</span></span>
+        </div>
+        <svg class="spark" id="downSpark" viewBox="0 0 600 62" preserveAspectRatio="none"></svg>
+        <div class="hr" style="margin:14px 0"></div>
+        <div class="metric">
+          <span class="name">↑ Upload</span>
+          <span><span class="value" id="upRate">0</span><span class="unit" id="upUnit">B/s</span></span>
+        </div>
+        <svg class="spark" id="upSpark" viewBox="0 0 600 62" preserveAspectRatio="none"></svg>
+        <div class="hr" style="margin:14px 0 10px"></div>
+        <div class="fact"><span>Peak download</span><span id="peakDown">0 B/s</span></div>
+        <div class="fact" style="margin-top:6px"><span>Peak upload</span><span id="peakUp">0 B/s</span></div>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile"><div class="k">DOWNLOADED</div><div class="v" id="downTotal">0 B</div></div>
+      <div class="tile"><div class="k">UPLOADED</div><div class="v" id="upTotal">0 B</div></div>
+      <div class="tile"><div class="k">SESSION</div><div class="v" id="sessionText">00:00</div></div>
+    </div>
+
+    <div class="card">
+      <button class="activity-head" id="activityToggle">
+        <span class="title">Activity</span>
+        <span class="summary" id="activitySummary">No activity yet</span>
+        <span class="chev" id="activityChev">›</span>
+      </button>
+      <pre class="log" id="logBox"></pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="dot" id="footDot"></span>
+  <span id="footText">Checking…</span>
+  <span class="spacer"></span>
+  <span class="tag" id="adminTag">ADMIN</span>
+  <span class="tag" id="engineTag">ENGINE</span>
+  <span>v<span id="version">0.1.0</span></span>
+  <button class="linkbtn" id="quitButton">Quit</button>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TOKEN = "{{TOKEN}}";
+let currentMode = "usb";
+let connecting = false;
+let logOpen = false;
+let lastLogCount = 0;
+let settingsDirty = false;
+
+const $ = (id) => document.getElementById(id);
+
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 3200);
+}
+
+async function api(path, body) {
+  const response = await fetch(path, {
+    method: body === undefined ? "GET" : "POST",
+    headers: { "X-ShareNet-Token": TOKEN, "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!response.ok) throw new Error((await response.text()).trim() || response.statusText);
+  return response.json();
+}
+
+function formatBytes(n) {
+  if (!n || n < 1024) return Math.round(n || 0) + " B";
+  const units = ["KB", "MB", "GB", "TB"];
+  let value = n;
+  for (const unit of units) {
+    value /= 1024;
+    if (value < 1024) return value.toFixed(1) + " " + unit;
+  }
+  return value.toFixed(1) + " PB";
+}
+
+function splitRate(bytes) {
+  const text = formatBytes(bytes) + "/s";
+  const match = /^([\d.]+) (.*)$/.exec(text);
+  return match ? { value: match[1], unit: match[2] } : { value: "0", unit: "B/s" };
+}
+
+function formatDuration(seconds) {
+  const total = Math.max(0, Math.floor(seconds || 0));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor(total / 60) % 60;
+  const secs = total % 60;
+  if (hours > 0) return hours + ":" + String(minutes).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+  return String(minutes).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+}
+
+function sparkline(svg, values, colour) {
+  const width = 600, height = 62, pad = 2;
+  svg.innerHTML = "";
+  if (!values.length) return;
+
+  const peak = Math.max(1, ...values);
+  const step = values.length > 1 ? (width - pad * 2) / (values.length - 1) : 0;
+
+  const points = values.map((value, index) => {
+    const x = pad + index * step;
+    const y = height - pad - (Math.max(0, value) / peak) * (height - pad * 2);
+    return x.toFixed(1) + "," + y.toFixed(1);
+  });
+
+  const area = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  area.setAttribute("points", pad + "," + (height - pad) + " " + points.join(" ") + " " + (width - pad) + "," + (height - pad));
+  area.setAttribute("fill", colour + "22");
+  svg.appendChild(area);
+
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  line.setAttribute("points", points.join(" "));
+  line.setAttribute("fill", "none");
+  line.setAttribute("stroke", colour);
+  line.setAttribute("stroke-width", "1.8");
+  line.setAttribute("stroke-linejoin", "round");
+  svg.appendChild(line);
+}
+
+function renderState(data) {
+  const state = data.state;
+  const connected = state === "Connected";
+  const busy = state === "Connecting" || state === "Disconnecting";
+
+  const dotClass = connected ? "ok" : busy ? "busy" : state === "Error" ? "bad" : "";
+  for (const id of ["headDot", "pillDot", "footDot"]) {
+    $(id).className = "dot " + dotClass;
+  }
+
+  $("pillText").textContent = state;
+  $("headState").textContent = state;
+  $("statusText").textContent = connected
+    ? "Connected"
+    : state === "Connecting"
+      ? "Connecting…"
+      : state === "Disconnecting"
+        ? "Disconnecting…"
+        : state === "Error"
+          ? "Not connected"
+          : "Ready to connect";
+  $("statusDetail").textContent = data.status
+    ? data.status
+    : "Choose USB or Wi-Fi. Every program will use the phone's connection.";
+
+  const error = $("errorText");
+  if (data.error) {
+    error.textContent = data.error;
+    error.classList.add("show");
+  } else {
+    error.classList.remove("show");
+  }
+
+  const button = $("connectButton");
+  if (connected) {
+    button.textContent = "Disconnect";
+    button.classList.add("danger");
+    button.disabled = false;
+  } else {
+    button.textContent = busy ? (state === "Connecting" ? "Connecting…" : "Disconnecting…") : "Connect";
+    button.classList.remove("danger");
+    button.disabled = busy || connecting;
+  }
+
+  $("transportText").textContent = (data.transport || currentMode) === "wifi" ? "Wi-Fi" : "USB cable";
+
+  $("footText").textContent = connected
+    ? "Tunnel active — all traffic uses the phone"
+    : state === "Error"
+      ? "Disconnected — action needed"
+      : "Tunnel stopped";
+
+  $("adminTag").textContent = data.root ? "ADMIN" : "NO ROOT";
+  $("adminTag").className = "tag" + (data.root ? "" : " bad");
+  $("engineTag").textContent = data.engine ? "ENGINE OK" : "NO ENGINE";
+  $("engineTag").className = "tag" + (data.engine ? "" : " bad");
+  $("version").textContent = data.version;
+
+  // Never fight the user while they are typing.
+  if (!settingsDirty) {
+    if (data.settings.mode === "wifi" || data.settings.mode === "usb") {
+      setMode(data.settings.mode, false);
+    }
+    $("hostInput").value = data.settings.wifiHost || "";
+    $("hotspotInput").checked = !!data.settings.hotspot;
+    if (data.settings.adapterName) $("adapterSelect").value = data.settings.adapterName;
+    $("passwordInput").placeholder = data.passwordSet
+      ? "Saved — leave empty to reuse"
+      : "Shown in the phone app";
+  }
+}
+
+function renderTraffic(traffic) {
+  const down = splitRate(traffic.downloadRate);
+  const up = splitRate(traffic.uploadRate);
+  $("downRate").textContent = down.value;
+  $("downUnit").textContent = down.unit;
+  $("upRate").textContent = up.value;
+  $("upUnit").textContent = up.unit;
+  $("downTotal").textContent = formatBytes(traffic.download);
+  $("upTotal").textContent = formatBytes(traffic.upload);
+  $("sessionText").textContent = formatDuration(traffic.duration);
+  $("peakDown").textContent = formatBytes(traffic.peakDownload) + "/s";
+  $("peakUp").textContent = formatBytes(traffic.peakUpload) + "/s";
+
+  const history = traffic.history || [];
+  sparkline($("downSpark"), history.map((point) => point.d), "#4c8dff");
+  sparkline($("upSpark"), history.map((point) => point.u), "#38d39f");
+}
+
+function renderLogs(logs) {
+  if (!logs || !logs.length) {
+    $("activitySummary").textContent = "No activity yet";
+    return;
+  }
+
+  const last = logs[logs.length - 1];
+  $("activitySummary").textContent =
+    logs.length + " events — " + last.message.slice(0, 90);
+
+  if (lastLogCount === logs.length) return;
+  lastLogCount = logs.length;
+
+  const box = $("logBox");
+  box.innerHTML = "";
+  for (const entry of logs) {
+    const line = document.createElement("div");
+    line.className = entry.level;
+    const time = new Date(entry.time).toLocaleTimeString([], { hour12: false });
+    line.textContent = time + "  " + entry.level.padEnd(5) + "  " + entry.message;
+    box.appendChild(line);
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+async function refresh() {
+  try {
+    const data = await api("/api/status");
+    renderState(data);
+    renderTraffic(data.traffic);
+    renderLogs(data.logs);
+    if (data.state === "Connected" || data.state === "Connecting") connecting = false;
+  } catch (error) {
+    $("footText").textContent = "Lost the local window server: " + error.message;
+  }
+}
+
+function setMode(mode, save) {
+  if (mode !== "usb" && mode !== "wifi") return;
+  currentMode = mode;
+  $("modeUsb").classList.toggle("active", mode === "usb");
+  $("modeWifi").classList.toggle("active", mode === "wifi");
+  $("usbPanel").style.display = mode === "usb" ? "" : "none";
+  $("wifiPanel").style.display = mode === "wifi" ? "" : "none";
+  $("transportText").textContent = mode === "wifi" ? "Wi-Fi" : "USB cable";
+  if (mode === "wifi") loadAdapters();
+  if (save) saveSettings();
+}
+
+let settingsTimer;
+function saveSettings() {
+  settingsDirty = true;
+  clearTimeout(settingsTimer);
+  settingsTimer = setTimeout(async () => {
+    try {
+      await api("/api/settings", {
+        mode: currentMode,
+        wifiHost: $("hostInput").value.trim(),
+        adapterName: $("adapterSelect").value,
+        lastSerial: $("deviceSelect").value,
+        hotspot: $("hotspotInput").checked,
+      });
+    } catch (error) {
+      toast("Could not save settings: " + error.message);
+    } finally {
+      settingsDirty = false;
+    }
+  }, 450);
+}
+
+async function scanDevices(announce) {
+  const select = $("deviceSelect");
+  select.innerHTML = "<option>Looking for phones…</option>";
+  try {
+    const data = await api("/api/devices", {});
+    select.innerHTML = "";
+    if (data.error) {
+      select.innerHTML = "<option value=''>No phones over USB</option>";
+      if (announce) toast(data.error);
+      return;
+    }
+    if (!data.devices.length) {
+      select.innerHTML = "<option value=''>No phones over USB</option>";
+      return;
+    }
+    for (const device of data.devices) {
+      const option = document.createElement("option");
+      option.value = device.serial;
+      option.textContent = device.display;
+      option.disabled = !device.usable;
+      select.appendChild(option);
+    }
+    if (announce) toast(data.devices.length + " phone(s) found");
+  } catch (error) {
+    select.innerHTML = "<option value=''>Scan failed</option>";
+    toast(error.message);
+  }
+}
+
+async function loadAdapters() {
+  try {
+    const data = await api("/api/adapters");
+    const select = $("adapterSelect");
+    select.innerHTML = "<option value=''>Automatic (default route)</option>";
+    for (const adapter of data.adapters || []) {
+      const option = document.createElement("option");
+      option.value = adapter.name;
+      option.textContent = adapter.display;
+      select.appendChild(option);
+    }
+  } catch (error) {
+    // Adapters are a convenience; the default route still works.
+  }
+}
+
+async function findPhone() {
+  const button = $("findButton");
+  button.disabled = true;
+  button.textContent = "Searching…";
+  try {
+    const data = await api("/api/find", { adapter: $("adapterSelect").value });
+    if (data.error) {
+      toast(data.error);
+      return;
+    }
+    if (data.phones.length) {
+      $("hostInput").value = data.phones[0].ip;
+      toast("Found " + data.phones.length + " phone(s): " + data.phones.map((phone) => phone.display).join(", "));
+      saveSettings();
+    }
+  } catch (error) {
+    toast(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Find";
+  }
+}
+
+async function connect() {
+  connecting = true;
+  $("connectButton").disabled = true;
+  $("connectButton").textContent = "Connecting…";
+  try {
+    await api("/api/connect", {
+      mode: currentMode,
+      serial: $("deviceSelect").value,
+      host: $("hostInput").value.trim(),
+      password: $("passwordInput").value,
+      adapter: $("adapterSelect").value,
+      find: false,
+      hotspot: $("hotspotInput").checked,
+    });
+    $("passwordInput").value = "";
+    refresh();
+  } catch (error) {
+    toast(error.message);
+    connecting = false;
+    refresh();
+  }
+}
+
+async function disconnect() {
+  try {
+    await api("/api/disconnect", {});
+    refresh();
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+$("connectButton").addEventListener("click", () => {
+  const connected = $("connectButton").classList.contains("danger");
+  if (connected) disconnect(); else connect();
+});
+
+$("modeUsb").addEventListener("click", () => setMode("usb", true));
+$("modeWifi").addEventListener("click", () => setMode("wifi", true));
+$("scanButton").addEventListener("click", () => scanDevices(true));
+$("findButton").addEventListener("click", findPhone);
+$("hostInput").addEventListener("blur", saveSettings);
+$("adapterSelect").addEventListener("change", saveSettings);
+$("hotspotInput").addEventListener("change", saveSettings);
+
+$("activityToggle").addEventListener("click", () => {
+  logOpen = !logOpen;
+  $("logBox").classList.toggle("open", logOpen);
+  $("activityChev").classList.toggle("open", logOpen);
+});
+
+$("quitButton").addEventListener("click", async () => {
+  if (!confirm("Quit ShareNet and restore this computer's networking?")) return;
+  try { await api("/api/quit", {}); } catch (error) { /* server is going away */ }
+  document.body.innerHTML =
+    "<div style='margin:auto;padding:40px;text-align:center;color:#7c8698'>ShareNet has stopped. " +
+    "You can close this tab.</div>";
+});
+
+setMode("usb", false);
+scanDevices(false);
+refresh();
+setInterval(refresh, 500);
+</script>
+</body>
+</html>

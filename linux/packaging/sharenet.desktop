@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=ShareNet
+GenericName=Phone VPN sharing
+Comment=Share your phone's VPN with this computer
+Exec=@EXEC@
+Icon=sharenet
+Terminal=false
+Categories=Network;Utility;
+Keywords=vpn;tether;phone;share;proxy;
+StartupNotify=true

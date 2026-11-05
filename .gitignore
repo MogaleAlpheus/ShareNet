@@ -17,6 +17,9 @@ build/
 # Release artifacts. Distributed as GitHub Release assets, not committed.
 dist/
 
+# Downloaded third-party engine for the Linux client (see linux/scripts).
+linux/tools/
+
 # Android release signing secrets. Keep local only.
 android/keystore.properties
 android/*.jks

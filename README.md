@@ -9,6 +9,10 @@ assets, name, or protocol is used.
 - **Windows app** (`windows/ShareNet`): creates a signed WinTun adapter, runs
   tun2socks against an internal loopback SOCKS5 bridge, and installs half-default
   routes plus an NRPT DNS rule.
+- **Linux client** (`linux/`): Fedora-first client with the same window, live
+  traffic meters, remembered settings and hotspot join as the Windows app, using
+  an `ip tuntap` device, `ip route` half-defaults and `resolvectl` for DNS. See
+  `linux/README.md`.
 - No Windows system proxy and no per-app proxy configuration. Every application
   uses the tunnel automatically.
 - The phone app does **not** create a `VpnService`; it uses normal sockets so the
@@ -45,6 +49,23 @@ assets, name, or protocol is used.
 
 See `dist/ShareNet-win-x64/README.txt` for requirements, cleanup behavior, and
 troubleshooting.
+
+### Linux (Fedora)
+
+```bash
+cd linux
+bash scripts/fetch-engine.sh
+sudo bash scripts/install.sh     # binary, engine, menu entry, polkit action
+sudo sharenet doctor
+sudo sharenet ui                 # or: sudo sharenet ui --autoconnect
+```
+
+The window offers the same controls as the Windows app (USB device picker,
+Wi-Fi address/password/adapter with Find, search-then-hotspot connect, live rates
+and sparkline, activity log). The installer also ships the user guide, both
+licences and the phone APK when built, and `scripts/uninstall.sh` reverses it.
+`sudo sharenet connect --find` still works headless. Build, requirements,
+routing/DNS details and troubleshooting are in `linux/README.md`.
 
 ## How it works
 
@@ -90,6 +111,9 @@ length-prefixed `ATYP/ADDR/PORT + payload` frames.
   with the portable Gradle in `_tools/`.
 - `windows/ShareNet/` — the Windows app (WPF, .NET 8) plus the adb, tun2socks and
   wintun binaries it ships with (`tools/`).
+- `linux/` — the Linux client (Go, no external modules): window and CLI, link
+  protocol, SOCKS5 bridge, tun2socks supervision, TUN/routes/DNS setup, nmcli
+  hotspot join, settings and install packaging.
 - `tests/` — standalone test and probe projects that compile the Windows link
   sources directly against a mock phone. No phone required.
 - `logo/` — logo source as SVG.
