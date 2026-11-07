@@ -1,12 +1,18 @@
 package engine
 
 import (
+	"bufio"
+	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
+	"time"
 )
 
 const (
@@ -23,27 +29,22 @@ const (
 
 // Runner wraps a running engine process.
 type Runner struct {
-	cmd  *exec.Cmd
-	tail []string
+	cmd    *exec.Cmd
+	done   chan struct{}
+	err    error
+	mu     sync.Mutex
+	exited bool
+	tail   []string
 }
 
 // Start launches the engine with the given arguments and captures its output.
 func Start(path, device string, socksPort, mtu int, logf func(string)) (*Runner, error) {
-	if path == "" {
-		return nil, errors.New("engine path is empty")
-	}
-	if _, err := os.Stat(path); err != nil {
-		return nil, fmt.Errorf("engine not found at %s: %w", path, err)
+	if mtu < 576 || mtu > 1500 {
+		return nil, fmt.Errorf("the tunnel MTU must be between 576 and 1500 (got %d)", mtu)
 	}
 
-	args := []string{
-		"-device", device,
-		"-proxy", fmt.Sprintf("socks5://127.0.0.1:%d", socksPort),
-		"-mtu", fmt.Sprintf("%d", mtu),
-		"-loglevel", "info",
-	}
+	cmd := exec.Command(path, arguments(device, socksPort, mtu)...)
 
-	cmd := exec.Command(path, args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, fmt.Errorf("stdout pipe: %w", err)
@@ -57,94 +58,160 @@ func Start(path, device string, socksPort, mtu int, logf func(string)) (*Runner,
 		return nil, fmt.Errorf("start engine: %w", err)
 	}
 
-	r := &Runner{cmd: cmd}
+	runner := &Runner{cmd: cmd, done: make(chan struct{})}
 
-	// Read output line by line for logging and tail capture.
-	readPipe := func(pipe *os.File, prefix string) {
-		buf := make([]byte, 4096)
-		for {
-			n, err := pipe.Read(buf)
-			if n > 0 {
-				line := strings.TrimSpace(string(buf[:n]))
-				if line != "" {
-					r.tail = append(r.tail, prefix+line)
-					if len(r.tail) > 100 {
-						r.tail = r.tail[len(r.tail)-100:]
-					}
-					logf(prefix + line)
-				}
-			}
-			if err != nil {
-				break
+	forward := func(input io.Reader, prefix string) {
+		scanner := bufio.NewScanner(input)
+		scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line != "" {
+				runner.record(prefix + line)
+				logf(prefix + line)
 			}
 		}
 	}
 
-	go readPipe(stdout, "ENGINE: ")
-	go readPipe(stderr, "ENGINE ERR: ")
+	go forward(stdout, "ENGINE: ")
+	go forward(stderr, "ENGINE ERR: ")
 
-	return r, nil
+	go func() {
+		err := cmd.Wait()
+		runner.mu.Lock()
+		runner.exited = true
+		runner.err = err
+		runner.mu.Unlock()
+		close(runner.done)
+	}()
+
+	return runner, nil
 }
 
-// Wait blocks until the engine exits and returns its exit error.
-func (r *Runner) Wait() error {
-	return r.cmd.Wait()
+// arguments builds the engine command line. tun2socks v2 parses flags with
+// urfave/cli, which only accepts the long forms with two dashes: a single-dash
+// "-loglevel" is rejected as an unknown shorthand and the engine exits before
+// it ever creates the TUN device.
+func arguments(device string, socksPort, mtu int) []string {
+	return []string{
+		"--device", "tun://" + device,
+		"--proxy", fmt.Sprintf("socks5://127.0.0.1:%d", socksPort),
+		"--loglevel", "info",
+		"--mtu", fmt.Sprintf("%d", mtu),
+		// Lift the netstack buffer ceilings so large transfers can use the
+		// whole link instead of a small default window.
+		"--tcp-auto-tuning",
+		"--tcp-sndbuf", "4MB",
+		"--tcp-rcvbuf", "4MB",
+	}
 }
 
-// ExitError returns a user-friendly error if the engine exited with an error.
-func (r *Runner) ExitError() error {
-	if r.cmd.ProcessState == nil {
-		return nil
+func (r *Runner) record(line string) {
+	r.mu.Lock()
+	r.tail = append(r.tail, line)
+	if len(r.tail) > 100 {
+		r.tail = r.tail[len(r.tail)-100:]
 	}
-	if r.cmd.ProcessState.Success() {
-		return nil
-	}
-	if len(r.tail) == 0 {
-		return fmt.Errorf("exit code %d", r.cmd.ProcessState.ExitCode())
-	}
-	// Return the last few lines as context.
-	start := len(r.tail) - 5
-	if start < 0 {
-		start = 0
-	}
-	return fmt.Errorf("exit code %d: %s", r.cmd.ProcessState.ExitCode(), strings.Join(r.tail[start:], "; "))
+	r.mu.Unlock()
 }
 
-// Tail returns the last captured engine output lines.
+// Tail is the engine's most recent output, so a startup failure can say why the
+// engine refused to run instead of only that the adapter never appeared.
 func (r *Runner) Tail() string {
-	if len(r.tail) == 0 {
+	if r == nil {
 		return ""
 	}
-	return strings.Join(r.tail, "\n")
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	// The engine prints its whole usage block before reporting a bad flag, so
+	// prefer the last real complaint over flag descriptions.
+	for i := len(r.tail) - 1; i >= 0; i-- {
+		line := r.tail[i]
+		if strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Usage of") || line == "" {
+			continue
+		}
+		return line
+	}
+	return strings.Join(r.tail, " | ")
+}
+
+// Running reports whether the process is still alive.
+func (r *Runner) Running() bool {
+	if r == nil {
+		return false
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return !r.exited
+}
+
+// Wait is closed when the engine exits.
+func (r *Runner) Wait() <-chan struct{} {
+	if r == nil {
+		closed := make(chan struct{})
+		close(closed)
+		return closed
+	}
+	return r.done
+}
+
+// ExitError is the engine's exit error, once it has stopped.
+func (r *Runner) ExitError() error {
+	if r == nil {
+		return nil
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.err
 }
 
 // Stop sends SIGTERM and waits up to timeout for the engine to exit.
 func (r *Runner) Stop(timeout time.Duration) error {
-	if r.cmd.Process == nil {
+	if r == nil || r.cmd.Process == nil {
 		return nil
 	}
 	if err := r.cmd.Process.Signal(os.Interrupt); err != nil {
 		_ = r.cmd.Process.Kill()
 		return err
 	}
-	done := make(chan error, 1)
-	go func() { done <- r.cmd.Wait() }()
 	select {
-	case err := <-done:
-		return err
+	case <-r.done:
+		return r.ExitError()
 	case <-time.After(timeout):
 		_ = r.cmd.Process.Kill()
-		return <-done
+		<-r.done
+		return r.ExitError()
 	}
 }
 
 // Version runs the engine with -version and returns the version string.
 func Version(path string) (string, error) {
-	out, err := exec.Command(path, "-version").CombinedOutput()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, path, "-version").CombinedOutput()
+	text := strings.TrimSpace(string(out))
 	if err != nil {
-		return "", fmt.Errorf("version check failed: %w", err)
+		if text == "" {
+			return "", fmt.Errorf("could not run %s -version: %w", path, err)
+		}
+		return "", fmt.Errorf("%s -version failed: %v (%s)", path, err, text)
 	}
-	return strings.TrimSpace(string(out)), nil
+
+	version := parseVersion(text)
+	if version == "" {
+		return "", fmt.Errorf("%s did not report a tun2socks version: %s", path, text)
+	}
+	return version, nil
+}
+
+var versionPattern = regexp.MustCompile(`v?(\d+\.\d+\.\d+)`)
+
+func parseVersion(text string) string {
+	match := versionPattern.FindStringSubmatch(text)
+	if match == nil {
+		return ""
+	}
+	return "v" + match[1]
 }
 
 // Find locates the engine: an explicit path, SHARENET_TUN2SOCKS, the folder
