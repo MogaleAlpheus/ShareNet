@@ -31,6 +31,18 @@ import (
 //go:embed page.html
 var pageHTML string
 
+//go:embed manifest.json
+var manifestJS string
+
+//go:embed sw.js
+var swJS string
+
+//go:embed icon-192.png
+var icon192 []byte
+
+//go:embed icon-512.png
+var icon512 []byte
+
 // Controller is the tunnel surface the window needs.
 type Controller interface {
 	State() (tunnel.State, string, error)
@@ -97,6 +109,10 @@ func Start(options Options) (*Server, error) {
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})
+	mux.HandleFunc("/manifest.json", server.static(manifestJS, "application/manifest+json"))
+	mux.HandleFunc("/sw.js", server.static(swJS, "application/javascript"))
+	mux.HandleFunc("/icon-192.png", server.staticBytes(icon192, "image/png"))
+	mux.HandleFunc("/icon-512.png", server.staticBytes(icon512, "image/png"))
 	mux.HandleFunc("/api/status", server.auth(server.status))
 	mux.HandleFunc("/api/connect", server.auth(server.connect))
 	mux.HandleFunc("/api/disconnect", server.auth(server.disconnect))
@@ -151,6 +167,22 @@ func (s *Server) auth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		next(w, r)
+	}
+}
+
+func (s *Server) static(content string, contentType string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		_, _ = w.Write([]byte(content))
+	}
+}
+
+func (s *Server) staticBytes(content []byte, contentType string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		_, _ = w.Write(content)
 	}
 }
 

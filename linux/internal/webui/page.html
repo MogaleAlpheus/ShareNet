@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ShareNet</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4c8dff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ShareNet">
 <style>
   :root {
     --bg: #0b0e14;
@@ -717,6 +723,9 @@ setMode("usb", false);
 scanDevices(false);
 refresh();
 setInterval(refresh, 500);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }
 </script>
 </body>
 </html>
