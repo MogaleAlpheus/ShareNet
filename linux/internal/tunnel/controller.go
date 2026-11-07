@@ -583,12 +583,17 @@ func (c *Controller) startDataPath(ctx context.Context, options link.Options, mt
 	}
 }
 
-// probeIPv6 mirrors the Windows app: the tunnel only carries IPv6 when the
-// phone's VPN can actually reach an IPv6 address.
+// probeIPv6 decides whether the tunnel should carry IPv6. The phone's network
+// can accept IPv6 on some ports (DNS on 53) and refuse it on the ones apps
+// actually use (80 and 443), so the probe tests HTTPS reachability to two
+// independent providers and requires BOTH to succeed. A false positive is worse
+// than a false negative: when the tunnel claims IPv6 the phone cannot carry,
+// connections open locally and then reset, so apps do not fall back to IPv4.
+// When the probe fails, IPv6 is left alone and keeps using the normal Wi-Fi path.
 func (c *Controller) probeIPv6(ctx context.Context, options link.Options) bool {
 	targets := []link.Address{
-		{Host: "2001:4860:4860::8888", Port: 53},
-		{Host: "2606:4700:4700::1111", Port: 53},
+		{Host: "2606:4700:4700::1111", Port: 443},
+		{Host: "2001:4860:4860::8888", Port: 443},
 	}
 
 	for _, target := range targets {
@@ -597,20 +602,24 @@ func (c *Controller) probeIPv6(ctx context.Context, options link.Options) bool {
 		linkConn, err := link.Dial(probeCtx, options)
 		if err != nil {
 			cancel()
-			continue
+			c.log.Info("IPv6 probe: phone link unavailable, leaving IPv6 untouched")
+			return false
 		}
 
 		stream, err := linkConn.OpenTCP(probeCtx, target.Host, target.Port)
 		cancel()
 		if err != nil {
 			linkConn.Close()
-			continue
+			c.log.Info("IPv6 probe: the phone cannot reach [%s]:%d, so the tunnel will carry IPv4 only "+
+				"and IPv6 stays on the normal network", target.Host, target.Port)
+			return false
 		}
 		stream.Close()
-		return true
+		linkConn.Close()
 	}
 
-	return false
+	c.log.Info("IPv6 probe: the phone reaches IPv6 over HTTPS, so the tunnel will carry it")
+	return true
 }
 
 // verifyInternet mirrors the Windows check: routes and DNS were only just
