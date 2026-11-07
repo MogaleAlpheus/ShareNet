@@ -3,6 +3,11 @@
 # entry, an icon, the polkit action that lets the menu entry run elevated, the
 # licences, and the phone app when a built APK is available.
 #
+# Offline by design: it only copies files that are already in this directory
+# tree. It never builds and never downloads. Prepare the payload on a connected
+# machine with scripts/build.sh and scripts/fetch-engine.sh, then carry linux/
+# over as a folder.
+#
 # Usage: sudo bash scripts/install.sh [--prefix /usr/local]
 set -euo pipefail
 
@@ -24,12 +29,35 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-[ -f dist/sharenet ] || bash scripts/build.sh
-[ -f tools/tun2socks ] || bash scripts/fetch-engine.sh
+# Each artifact is looked up in the prepared payload folder first, then in the
+# other build folder, so one copy of linux/ carries everything.
+find_artifact() {
+  for candidate in "$@"; do
+    if [ -f "$candidate" ]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+binary="$(find_artifact dist/sharenet tools/sharenet)" || {
+  echo "Missing the ShareNet binary (looked for dist/sharenet and tools/sharenet)." >&2
+  echo "This installer copies local files only; it does not build or download." >&2
+  echo "On a machine with Go installed, run linux/scripts/build.sh and copy dist/ over." >&2
+  exit 1
+}
+
+engine="$(find_artifact tools/tun2socks dist/tun2socks)" || {
+  echo "Missing the tunnel engine (looked for tools/tun2socks and dist/tun2socks)." >&2
+  echo "This installer copies local files only; it does not build or download." >&2
+  echo "On a machine with a network, run linux/scripts/fetch-engine.sh and copy tools/ over." >&2
+  exit 1
+}
 
 echo "Installing to $prefix"
-install -Dm755 dist/sharenet "$prefix/bin/sharenet"
-install -Dm755 tools/tun2socks "$prefix/bin/tun2socks"
+install -Dm755 "$binary" "$prefix/bin/sharenet"
+install -Dm755 "$engine" "$prefix/bin/tun2socks"
 
 logo="$root/../logo/ShareNet_Logo.svg"
 if [ -f "$logo" ]; then

@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -26,6 +28,34 @@ func TestArgumentsUseDoubleDashFlags(t *testing.T) {
 		if !strings.Contains(joined, want) {
 			t.Fatalf("arguments missing %q: %s", want, joined)
 		}
+	}
+}
+
+// The desktop launcher runs pkexec with a PATH that does not include the
+// install prefix, so the engine has to be found beside the binary.
+func TestFindLooksBesideTheExecutable(t *testing.T) {
+	executable, err := os.Executable()
+	if err != nil {
+		t.Skipf("os.Executable: %v", err)
+	}
+
+	sideBySide := filepath.Join(filepath.Dir(executable), "tun2socks")
+	if _, err := os.Stat(sideBySide); err == nil {
+		t.Skipf("%s already exists", sideBySide)
+	}
+	if err := os.WriteFile(sideBySide, []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Skipf("cannot create %s: %v", sideBySide, err)
+	}
+	defer os.Remove(sideBySide)
+
+	t.Setenv("SHARENET_TUN2SOCKS", "")
+
+	found, err := Find("")
+	if err != nil {
+		t.Fatalf("Find: %v", err)
+	}
+	if found != sideBySide {
+		t.Fatalf("Find = %q, want the engine beside the binary (%q)", found, sideBySide)
 	}
 }
 

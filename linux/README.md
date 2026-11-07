@@ -11,7 +11,7 @@ settings as the Windows build.
 
 ```
 programs ──> sharenet TUN (198.18.0.1/15) ──> tun2socks ──> 127.0.0.1:<port>
-          ──> link protocol v1 ──> Android ShareNet app ──> phone VPN
+           ──> link protocol v1 ──> Android ShareNet app ──> phone VPN
 ```
 
 ## What matches the Windows app
@@ -44,7 +44,7 @@ tunnel; `sharenet ui` keeps running until Ctrl+C, the window's Quit button, or
   change routes and DNS
 - `NetworkManager` (`nmcli`) only for joining the phone's own hotspot
 - The tun2socks engine, pinned to v2.7.0 and checksum-verified by the fetch
-  script
+  script, staged in `linux/tools/` (the installer does not download it)
 - The phone runs the ShareNet Android app (Android 8 or newer); the app's
   automatic `ShareNet-XXXX` hotspot needs Android 11 or newer
 - For USB: `android-tools` (adb) and USB debugging enabled on the phone
@@ -57,11 +57,36 @@ sudo modprobe tun
 
 ## Install
 
+The installer is **offline**. It copies the binary and the engine that are
+already in the `linux/` folder tree and never builds or downloads anything, so
+the same folder works on a machine with no network.
+
 ```bash
 cd linux
-bash scripts/fetch-engine.sh        # tun2socks into linux/tools/
 sudo bash scripts/install.sh        # binary, engine, menu entry, icon, polkit action
 ```
+
+If an artifact is missing it stops with an error naming the file instead of
+fetching it.
+
+### Preparing the payload
+
+Do this once, on a machine with a network and the Go toolchain:
+
+```bash
+cd linux
+bash scripts/build.sh               # dist/sharenet + dist/sharenet.sha256
+bash scripts/fetch-engine.sh        # tools/tun2socks (v2.7.0, checksum-verified)
+```
+
+Then carry `linux/` over as a folder — zip it or copy it from a USB stick.
+`dist/` and `tools/` are gitignored, so a `git clone` on the target brings
+neither file and the installer will refuse to run.
+
+The binary built above is `linux/amd64`. For another architecture, build with
+`GOARCH=arm64 bash scripts/build.sh` and fetch the matching engine with
+`bash scripts/fetch-engine.sh arm64` (both steps still happen on the connected
+machine).
 
 `install.sh` accepts `--prefix` (default `/usr/local`). It adds:
 
@@ -72,8 +97,8 @@ sudo bash scripts/install.sh        # binary, engine, menu entry, icon, polkit a
 - `$prefix/share/doc/sharenet/` with the user guide and both licences
 - `$prefix/share/sharenet/ShareNet-android.apk` when a built APK is present
 
-To build without installing: `bash scripts/build.sh` writes `dist/sharenet` and
-`dist/sharenet.sha256`. To remove ShareNet again (settings are kept):
+`build.sh` writes `dist/sharenet` and `dist/sharenet.sha256` without installing.
+To remove ShareNet again (settings are kept):
 
 ```bash
 sudo bash scripts/uninstall.sh
@@ -201,9 +226,9 @@ the engine, removes the adb forward, and leaves the phone's hotspot network.
 | `must run as root` / `NO ROOT` badge | use `sudo sharenet ui` or the menu entry |
 | Window does not open from the menu | `sudo sharenet ui` in a terminal and open the printed address |
 | `/dev/net/tun is missing` | `sudo modprobe tun` |
-| `the tunnel engine (tun2socks) is missing` | `bash scripts/fetch-engine.sh` or `--engine` |
+| `the tunnel engine (tun2socks) is missing` | `tools/tun2socks` was not carried over; copy it or pass `--engine` |
 | `adb was not found` | `sudo dnf install android-tools`, or use Wi-Fi |
-| `Tunnel engine v2.x.y does not match the pinned v2.7.0` | run `bash scripts/fetch-engine.sh` and reinstall; a different release may reject ShareNet's flags |
+| `Tunnel engine v2.x.y does not match the pinned v2.7.0` | stage the pinned engine with `bash scripts/fetch-engine.sh` on a connected machine and reinstall; a different release may reject ShareNet's flags |
 | `the tunnel engine exited before the ShareNet adapter was ready` | the message quotes the engine's own complaint; reinstall with `scripts/install.sh` and run `sharenet doctor` |
 | USB shows no phone | run `sharenet devices` and accept the prompt on the phone |
 | phone shows as `unauthorized` | unlock it and accept the USB debugging prompt |
